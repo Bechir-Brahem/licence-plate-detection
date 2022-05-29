@@ -17,16 +17,32 @@ def detect_object(frame,filename):
     cv2.imwrite(source_img_path,frame)
     source_abspath=os.path.abspath(source_img_path)
 
-    print(source_abspath)
-    print(dir_path_abs)
     command=f'cd object_detection_and_ocr/yolov5 && python detect_and_ocr.py --weights ../best.pt --img 416 --conf 0.4 --source {source_abspath}  --crop --dest {dir_path_abs}/'
 
     print(command)
     subprocess.run(command,shell=True)
     detection=cv2.imread(os.path.join(dir_path,'detection.jpg'))
-    crop=cv2.imread(os.path.join(dir_path,'crop.jpg'))
+    ocr_file=open(dir_path+'/results.csv','r')
+    text=ocr_file.read().split('\n')
 
-    return  detection,crop
+    ret=[]
+
+    for line in text:
+        if line =='':
+            continue
+        ocr_text=line[1:]
+        filename=dir_path+'/crop'+line[0]+'.jpg'
+        
+        crop=cv2.imread(filename)
+        ret.append({'img':crop,'text':ocr_text})
+
+
+
+
+
+    
+
+    return  detection,ret
     
 
 

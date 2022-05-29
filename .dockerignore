@@ -1,0 +1,8 @@
+bin
+etc
+images/**
+share
+lib
+pyvenv.cfg
+**/__pycache__
+**/licence-plate-2

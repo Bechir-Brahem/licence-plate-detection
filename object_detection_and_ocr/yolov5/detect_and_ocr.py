@@ -115,7 +115,8 @@ def detect(save_img=False):
                     s += f"{n} {names[int(c)]}{'s' * (n > 1)}, "  # add to string
 
                 # Write results
-                for *xyxy, conf, cls in reversed(det):
+                ocr_file=open(os_path.join(dest,'results.csv'),'w')
+                for index, (*xyxy, conf, cls) in enumerate(reversed(det)):
                     if save_txt:  # Write to file
                         xywh = (xyxy2xywh(torch.tensor(xyxy).view(1, 4)) / gn).view(-1).tolist()  # normalized xywh
                         line = (cls, *xywh, conf) if opt.save_conf else (cls, *xywh)  # label format
@@ -129,39 +130,22 @@ def detect(save_img=False):
 
 
             # Print time (inference + NMS)
-            print(f'{s}Done. ({t2 - t1:.3f}s)')
+                    print(f'{s}Done. ({t2 - t1:.3f}s)')
 
-            save_obj = True
-            if crop:
-                for k in range(len(det)):
-                    x,y,w,h=int(xyxy[0]), int(xyxy[1]), int(xyxy[2] - xyxy[0]), int(xyxy[3] - xyxy[1])                   
-                    img_ = im0.astype(uint8)
-                    crop_img=img_[y:y+ h, x:x + w]                          
-                        
-                    #!!rescale image !!!
-                    filename=p.name
-                    filepath=os_path.join(dest, 'crop.jpg')
-                    print(filepath)
-                    cv2.imwrite(filepath, crop_img) 
-                    img_path=filepath
-                    text = reader.readtext(img_path,detail=0)
-                    #  if len(text)>0:
-                        #  text=''.join(text)
-                        #  arr=text.split(' ')
-                        #  if len(arr)>=3:
-                            #  licence=arr[0]+' Tunis '+arr[2]
-                        #  else:
-                            #  licence=text
-                    #  else:
-                        #  licence=''
-
-                    print('\n',''.join(text),'\n')
-
-
-                    
-                if len(det)==0:
-                    print("There is no detected object")
-                    continue
+                    save_obj = True
+                    if crop:
+                        x,y,w,h=int(xyxy[0]), int(xyxy[1]), int(xyxy[2] - xyxy[0]), int(xyxy[3] - xyxy[1])                   
+                        img_ = im0.astype(uint8)
+                        crop_img=img_[y:y+ h, x:x + w]                          
+                            
+                        filepath=os_path.join(dest, 'crop'+str(index)+'.jpg')
+                        print(filepath)
+                        cv2.imwrite(filepath, crop_img) 
+                        img_path=filepath
+                        text = reader.readtext(img_path,detail=0)
+                        text=''.join(text)
+                        text.replace('\n', '')
+                        ocr_file.write(str(index)+text+'\n')
 
             # Stream results
             if view_img:

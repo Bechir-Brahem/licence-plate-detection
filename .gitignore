@@ -1,1 +1,7 @@
 **/licence-plate-2
+images/**
+bin/
+etc/
+lib/
+pyvenv.cfg
+share/

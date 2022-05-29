@@ -5,15 +5,16 @@ from detection.detect import detect_object
 
 
 def main():
-    st.title("Object detection with YOLOv4")
+    st.title("Object detection with YOLOv5")
     img_array,filename = upload_image_ui()
 
     if isinstance(img_array, np.ndarray):
-        detection,crop = detect_object(img_array,filename)
+        detection,crops = detect_object(img_array,filename)
         st.text('detection')
         st.image(detection)
-        st.text('cropped licence plate')
-        st.image(crop)
+        for crop in crops:
+            st.text('cropped licence plate:  '+crop['text'])
+            st.image(crop['img'])
 
 def upload_image_ui():
     uploaded_image = st.file_uploader("Please choose an image file", type=["png", "jpg", "jpeg"])
