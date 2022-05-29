@@ -16,27 +16,26 @@ from utils.torch_utils import select_device, load_classifier, time_synchronized
 
 
 def detect(save_img=False):
-    crop, source, weights, view_img, save_txt, imgsz =opt.crop,  opt.source, opt.weights, opt.view_img, opt.save_txt, opt.img_size
+    dest,crop, source, weights, view_img, save_txt, imgsz =opt.dest,opt.crop,  opt.source, opt.weights, opt.view_img, opt.save_txt, opt.img_size
     webcam = source.isnumeric() or source.endswith('.txt') or source.lower().startswith(
         ('rtsp://', 'rtmp://', 'http://'))
 
     # Directories
     save_dir = Path(increment_path(Path(opt.project) / opt.name, exist_ok=opt.exist_ok))  # increment run
     (save_dir / 'labels' if save_txt else save_dir).mkdir(parents=True, exist_ok=True)  # make dir
-    print(crop)
+    
     if crop:
         import easyocr
-        import pytesseract
         reader = easyocr.Reader(['en'])
         from os import mkdir,path as os_path
         from shutil import rmtree
         from numpy import uint8
-        try:
-            rmtree('test_images')
-        except FileNotFoundError:
-            pass
-        mkdir('test_images')
-        mkdir('test_images/results')
+        #  try:
+            #  rmtree('test_images')
+        #  except FileNotFoundError:
+            #  pass
+        #  mkdir('test_images')
+        #  mkdir('test_images/results')
     
 
     # Initialize
@@ -141,7 +140,7 @@ def detect(save_img=False):
                         
                     #!!rescale image !!!
                     filename=p.name
-                    filepath=os_path.join(r'test_images/results/', filename)
+                    filepath=os_path.join(dest, 'crop.jpg')
                     print(filepath)
                     cv2.imwrite(filepath, crop_img) 
                     img_path=filepath
@@ -172,7 +171,7 @@ def detect(save_img=False):
             # Save results (image with detections)
             if save_img:
                 if dataset.mode == 'image':
-                    cv2.imwrite(save_path, im0)
+                    cv2.imwrite(dest+'detection.jpg', im0)
                 else:  # 'video'
                     if vid_path != save_path:  # new video
                         vid_path = save_path
@@ -212,8 +211,8 @@ if __name__ == '__main__':
     parser.add_argument('--name', default='exp', help='save results to project/name')
     parser.add_argument('--crop', action='store_true',default=False, help='saves cropped result')
     parser.add_argument('--exist-ok', action='store_true', help='existing project/name ok, do not increment')
+    parser.add_argument('--dest', type=str, required=True, help='source')  # file/folder, 0 for webcam
     opt = parser.parse_args()
-    print(opt)
     check_requirements()
 
     with torch.no_grad():
